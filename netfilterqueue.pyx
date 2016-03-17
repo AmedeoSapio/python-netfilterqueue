@@ -93,12 +93,22 @@ cdef class Packet:
     
     def get_payload(self):
         """Return payload as Python string."""
-        cdef object py_string = PyString_FromStringAndSize(self.payload,
-                                                           self.payload_len)
+        
+        cdef object py_string
+        
+        if self._given_payload:
+            py_string = PyString_FromStringAndSize(self._given_payload,
+                                                   len(self._given_payload))
+        else:
+            py_string = PyString_FromStringAndSize(self.payload,
+                                                   self.payload_len)
         return py_string
     
     cpdef Py_ssize_t get_payload_len(self):
-        return self.payload_len
+        if self._given_payload:
+            return len(self._given_payload)
+        else:
+            return self.payload_len
     
     cpdef double get_timestamp(self):
         return self.timestamp.tv_sec + (self.timestamp.tv_usec/1000000.0)
